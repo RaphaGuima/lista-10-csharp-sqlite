@@ -1,0 +1,183 @@
+using System;
+using System.Collections.Generic;
+
+class ContaBancaria
+{
+    public int Numero { get; }
+    public string Titular { get; set; }
+    public double Saldo { get; private set; }
+
+    public ContaBancaria(int numero, string titular, double saldoInicial)
+    {
+        Numero = numero;
+        Titular = titular;
+        Saldo = saldoInicial;
+    }
+
+    public void Depositar(double valor)
+    {
+        Saldo += valor;
+        Console.WriteLine($"Depósito de R$ {valor} realizado com sucesso. Novo saldo: R$ {Saldo}");
+    }
+
+    public void Sacar(double valor)
+    {
+        if (valor > Saldo)
+        {
+            Console.WriteLine("Saldo insuficiente para realizar saque.");
+        }
+        else
+        {
+            Saldo -= valor;
+            Console.WriteLine($"Saque de R$ {valor} realizado com sucesso. Novo saldo: R$ {Saldo}");
+        }
+    }
+
+    public void VerificarSaldo()
+    {
+        Console.WriteLine($"Saldo da conta {Numero}: R$ {Saldo}");
+    }
+}
+
+class Program
+{
+    static HashSet<ContaBancaria> contas = new HashSet<ContaBancaria>();
+
+    static void Main(string[] args)
+    {
+        bool continuar = true;
+
+        while (continuar)
+        {
+            Console.WriteLine("Sistema de Gerenciamento de Contas Bancárias");
+            Console.WriteLine("1. Criar nova conta");
+            Console.WriteLine("2. Depositar em uma conta");
+            Console.WriteLine("3. Sacar de uma conta");
+            Console.WriteLine("4. Verificar saldo de uma conta");
+            Console.WriteLine("5. Listar todas as contas");
+            Console.WriteLine("6. Sair");
+            Console.Write("Escolha uma opção: ");
+            string opcao = Console.ReadLine();
+
+            switch (opcao)
+            {
+                case "1":
+                    CriarNovaConta();
+                    break;
+                case "2":
+                    Depositar();
+                    break;
+                case "3":
+                    Sacar();
+                    break;
+                case "4":
+                    VerificarSaldo();
+                    break;
+                case "5":
+                    ListarContas();
+                    break;
+                case "6":
+                    continuar = false;
+                    break;
+                default:
+                    Console.WriteLine("Opção inválida. Tente novamente.");
+                    break;
+            }
+        }
+    }
+
+    static void CriarNovaConta()
+    {
+        int numeroConta = new Random().Next(1000, 2000);
+        Console.Write("Digite o nome do titular da conta: ");
+        string titular = Console.ReadLine();
+
+        double saldoInicial;
+        do
+        {
+            Console.Write("Digite o saldo inicial da conta: ");
+        } while (!double.TryParse(Console.ReadLine(), out saldoInicial));
+
+        ContaBancaria novaConta = new ContaBancaria(numeroConta, titular, saldoInicial);
+        contas.Add(novaConta);
+
+        Console.WriteLine($"Conta criada com sucesso. Número da conta: {numeroConta}");
+    }
+
+    static void Depositar()
+    {
+        Console.Write("Digite o número da conta para depósito: ");
+        int numeroConta = Convert.ToInt32(Console.ReadLine());
+
+        ContaBancaria conta = EncontrarConta(numeroConta);
+
+        if (conta != null)
+        {
+            Console.Write("Digite o valor a ser depositado: ");
+            double valor;
+            while (!double.TryParse(Console.ReadLine(), out valor))
+            {
+                Console.WriteLine("Valor inválido. Digite novamente.");
+            }
+
+            conta.Depositar(valor);
+        }
+    }
+
+    static void Sacar()
+    {
+        Console.Write("Digite o número da conta para saque: ");
+        int numeroConta = Convert.ToInt32(Console.ReadLine());
+
+        ContaBancaria conta = EncontrarConta(numeroConta);
+
+        if (conta != null)
+        {
+            Console.Write("Digite o valor a ser sacado: ");
+            double valor;
+            while (!double.TryParse(Console.ReadLine(), out valor))
+            {
+                Console.WriteLine("Valor inválido. Digite novamente.");
+            }
+
+            conta.Sacar(valor);
+        }
+    }
+
+    static void VerificarSaldo()
+    {
+        Console.Write("Digite o número da conta para verificar o saldo: ");
+        int numeroConta = Convert.ToInt32(Console.ReadLine());
+
+        ContaBancaria conta = EncontrarConta(numeroConta);
+
+        if (conta != null)
+        {
+            conta.VerificarSaldo();
+        }
+    }
+
+    static void ListarContas()
+    {
+        Console.WriteLine("Listagem de Contas:");
+
+        foreach (var conta in contas)
+        {
+            Console.WriteLine($"Número da conta: {conta.Numero}, Titular: {conta.Titular}, Saldo: R$ {conta.Saldo}");
+        }
+    }
+
+    static ContaBancaria EncontrarConta(int numeroConta)
+    {
+        foreach (var conta in contas)
+        {
+            if (conta.Numero == numeroConta)
+            {
+                return conta;
+            }
+        }
+
+        Console.WriteLine("Conta não encontrada.");
+        return null;
+    }
+}
